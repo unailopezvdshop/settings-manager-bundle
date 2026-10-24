@@ -10,3 +10,4 @@ composer.phar
 
 /.phpbench_storage
 php-cs-fixer.phar
+/tests/app/public/bundles

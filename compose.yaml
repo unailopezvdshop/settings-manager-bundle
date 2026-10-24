@@ -4,7 +4,13 @@
 #   docker compose exec php composer install
 #   docker compose exec php vendor/bin/phpunit
 #
-# Set MYSQL_HOST_PORT / REDIS_HOST_PORT if 3306 / 6379 are already taken on the host.
+# Settings UI at http://localhost:8000/settings, after creating the schema once:
+#
+#   docker compose exec php tests/app/console doctrine:schema:update --force
+#   docker compose exec php tests/app/console doctrine:fixtures:load -n
+#   docker compose exec php tests/app/console assets:install tests/app/public
+#
+# Set APP_HOST_PORT / MYSQL_HOST_PORT / REDIS_HOST_PORT if 8000 / 3306 / 6379 are already taken on the host.
 
 services:
   php:
@@ -30,8 +36,11 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    ports:
+      - "${APP_HOST_PORT:-8000}:8000"
     init: true
-    command: ["tail", "-f", "/dev/null"]
+    # Serves the test app's dev environment; the settings UI is at /settings.
+    command: ["php", "-S", "0.0.0.0:8000", "-t", "tests/app/public"]
 
   mysql:
     image: mysql:8.4

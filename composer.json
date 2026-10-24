@@ -64,6 +64,7 @@
         "symfony/phpunit-bridge": "^3.4|^4.3",
         "symfony/security-bundle": "^3.4|^4.3",
         "symfony/stopwatch": "^3.4|^4.3",
+        "symfony/translation": "^3.4|^4.3",
         "symfony/twig-bundle": "^3.4|^4.3",
         "symfony/web-profiler-bundle": "^3.4|^4.3",
         "symfony/lock": "^3.4|^4.3"

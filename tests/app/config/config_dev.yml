@@ -1,0 +1,19 @@
+# Browsable dev environment (served by the "php" service in compose.yaml):
+# the test app, but stored in MySQL and with real sessions.
+imports:
+    - { resource: config_test.yml }
+
+framework:
+    test: false
+    router:
+        resource: "%kernel.root_dir%/config/routing_dev.yml"
+    session:
+        storage_id: session.storage.native
+    translator:
+        fallbacks: [en]
+
+doctrine:
+    dbal:
+        connections:
+            default:
+                url: '%env(DATABASE_URL)%'

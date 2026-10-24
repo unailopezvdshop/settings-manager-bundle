@@ -12,7 +12,7 @@ class AppKernel extends Kernel
      */
     public function registerBundles()
     {
-        return [
+        $bundles = [
             new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
             new \Symfony\Bundle\MonologBundle\MonologBundle(),
             new \Symfony\Bundle\TwigBundle\TwigBundle(),
@@ -28,6 +28,13 @@ class AppKernel extends Kernel
             new \Liip\TestFixturesBundle\LiipTestFixturesBundle(),
             new \App\AppBundle(),
         ];
+
+        // the bundled UI needs it, see config_dev.yml
+        if ('dev' === $this->getEnvironment()) {
+            $bundles[] = new \FOS\JsRoutingBundle\FOSJsRoutingBundle();
+        }
+
+        return $bundles;
     }
 
     public function getRootDir()

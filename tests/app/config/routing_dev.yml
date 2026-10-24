@@ -1,0 +1,6 @@
+_test:
+    resource: routing_test.yml
+    prefix: /settings
+
+fos_js_routing:
+    resource: "@FOSJsRoutingBundle/Resources/config/routing/routing.xml"

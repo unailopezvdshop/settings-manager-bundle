@@ -1,0 +1,12 @@
+#!/usr/bin/env php
+<?php
+
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Input\ArgvInput;
+
+require dirname(__DIR__, 2).'/vendor/autoload.php';
+
+$input = new ArgvInput();
+$env = $input->getParameterOption(['--env', '-e'], 'dev');
+
+(new Application(new AppKernel($env, true)))->run($input);
