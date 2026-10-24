@@ -27,7 +27,7 @@
                         </td>
                         {% for pName, provider in providers %}
                             <td>
-                                {% for pDomain in provider.getDomains() if pDomain.getName() is same as(domain.getName()) %}
+                                {% for pDomain in provider.getDomains()|filter(pDomain => pDomain.getName() is same as(domain.getName())) %}
                                     <input
                                             type="checkbox"
                                             name="{{ pName }}_{{ pDomain.getName() | lower }}"
