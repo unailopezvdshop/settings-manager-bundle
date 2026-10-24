@@ -1,0 +1,69 @@
+# Local development environment: PHP CLI with Composer, MySQL and Redis.
+#
+#   docker compose up -d --build
+#   docker compose exec php composer install
+#   docker compose exec php vendor/bin/phpunit
+#
+# Set MYSQL_HOST_PORT / REDIS_HOST_PORT if 3306 / 6379 are already taken on the host.
+
+services:
+  php:
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM php:7.3-cli-alpine
+        COPY --from=mlocati/php-extension-installer:2 /usr/bin/install-php-extensions /usr/local/bin/
+        COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+        RUN apk add --no-cache git unzip \
+         && install-php-extensions intl pdo_mysql redis zip
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - composer_cache:/var/cache/composer
+    environment:
+      COMPOSER_CACHE_DIR: /var/cache/composer
+      DATABASE_URL: mysql://app:app@mysql:3306/app?serverVersion=8.4&charset=utf8mb4
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    init: true
+    command: ["tail", "-f", "/dev/null"]
+
+  mysql:
+    image: mysql:8.4
+    # PHP 7.3's mysqlnd can't do caching_sha2_password, so create users with native auth.
+    command: ["--mysql-native-password=ON", "--authentication-policy=mysql_native_password"]
+    environment:
+      MYSQL_DATABASE: app
+      MYSQL_USER: app
+      MYSQL_PASSWORD: app
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "${MYSQL_HOST_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      # TCP on purpose: the image's init phase only listens on the socket.
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_HOST_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  composer_cache:
+  mysql_data:
